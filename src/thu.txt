@@ -1,0 +1,2 @@
+https://www.google.com/search?q=f8 lap trinh&ref=f8&author=sondang
+path                        / ? "bắt đầu thêm query parameter"/q "name parameter"= valuae parameter/ & "ký hiệu nối các parameters"

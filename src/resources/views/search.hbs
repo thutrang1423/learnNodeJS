@@ -1,0 +1,15 @@
+{{!-- hành vi mặc định của form --}}
+{{!-- submit: là hành vi reload lại trang và đính thêm request query parameter lên trên thanh request url--}}
+{{!-- nó đính tất cả các thẻ input có name trong form lên trên query parameter với phương thức get--}}
+<div class="search_form"> {{!--action nơi quyết định submit, nếu không nhập hoặc để trống nó sẽ đăng nhập vào chính nơi
+    submit hiện tại--}}
+    {{!-- <form method="get" action="/news" class="d-flex" role="search"> --}} {{! get dùng lây thông tin từ sever đến
+        client hiện ra trên url}}
+        <form method="post" class="d-flex" role="search"> {{! post dùng gửi thông tin từ client đến sever dưới backend
+            không hiện ra trên url}}
+            <input class="form-control me-2" name="full name" placeholder="Full name" aria-label="Search" />
+            <input class="form-control me-2" name="age" placeholder="Age" aria-label="Search" />
+            <input class="form-control me-2" name="q" placeholder="Search" aria-label="Search" />
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+</div>
