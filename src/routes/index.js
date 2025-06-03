@@ -1,17 +1,12 @@
 const newsRouter = require('./route.news')
+const homeRouter = require('./route.site')
+const courseRouter = require('./route.courses')
 
 function route(app) {
-    app.get('/', (req, res) => {
-        res.render('home');
-    })
-
     app.use('/news', newsRouter)
-
-    app.get('/search', (req, res) => {
-        console.log(req.query.q);
-        res.render('search');
-    })
-
+    app.use('/courses', courseRouter)
+    app.use('/search', homeRouter)
+    app.use('/', homeRouter)
 }
 
 module.exports = route
