@@ -1,0 +1,85 @@
+<div class="mt4">
+    <h3>Khoá học của tôi</h3>
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Tên khoá học</th>
+                <th scope="col">Trình độ</th>
+                <th scope="col" colspan="2">Thời gian tạo</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {{#each courses}}
+            <tr>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.level}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="/courses/{{this._id}}/edit" class="btn btn-link">Sửa</a>
+                    <a href="" class="btn btn-primary" data-id="{{this._id}}" data-bs-toggle="modal"
+                        data-bs-target="#delete-course-modal">
+                        Xoá
+                    </a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+{{!-- comform to delete course--}}
+<div class="modal face" tabindex="-1" id="delete-course-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xoá khoá học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc muốn xoá khoá học này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="btn-delete-course">Xoá bỏ</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{!-- Delete hidden form --}}
+<form method="POST" name="delete-course-form"></form>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () { //Đảm bảo rằng tất cả phần tử HTML (modal, form, nút...) đều đã được load trước khi JS chạy.
+        var courseId;
+        var deleteForm = document.forms['delete-course-form']
+        var btnDeleteCourse = document.getElementById('btn-delete-course')
+        const deleteCourseModal = document.getElementById('delete-course-modal')
+        const deleteButton = deleteCourseModal.querySelector('.btn-danger')
+
+        deleteCourseModal.addEventListener('show.bs.modal', function (event) { //event là Bootstrap modal event object
+            const button = event.relatedTarget // event.relatedTarget là phần tử HTML đã kích hoạt modal. <-- chính là nút ở bên ngoài "Xoá"
+            const courseId = button.getAttribute('data-id') //button.getAttribute('data-id') sẽ lấy ra giá trị "123". getAttribute lấy giá trị của một thuộc tính (attribute) từ một phần tử HTML.
+
+            // Gán ID cho nút Xoá trong modal
+            deleteButton.setAttribute('data-id', courseId)//setAttribute: Hàm dùng để gán giá trị cho một thuộc tính HTML. 'data-id'Tên thuộc tính tùy chỉnh, courseId Biến chứa ID của khoá học
+
+            // Gán sự kiện click cho nút Xoá
+            deleteButton.onclick = function () {
+                console.log("ID khoá học:", courseId)
+                // TODO: Gọi API xoá hoặc chuyển trang nếu cần
+            };
+
+            //delete course btn click
+            btnDeleteCourse.onclick = function () {
+                //alert(courseId);
+                deleteForm.action = '/courses/' + courseId + '?_method=DELETE'
+                deleteForm.submit()
+            }
+        });
+    });
+</script>

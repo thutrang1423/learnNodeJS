@@ -1,9 +1,12 @@
 const path = require('path')
 const express = require('express') //require('express') đí vào node_modules tải express ra và lưu vào biến express
 const morgan = require('morgan')
+const methodOverride = require('method-override') //đây là thư viện hỗ trợ thêm cho express để thêm phương thức put, path cho giống với restful API 
 const { engine } = require('express-handlebars');
 const app = express() //express() là chạy 1 function express có sẵn trong node_modules, hàm này sẽ trả về 1 đối tượng đại diện cho ứng dụng của mình, và mình sẽ dùng nó xuyên suột ứng dụng
 const port = 3000 //run website ở cổng port nào 
+
+app.use(methodOverride('_method'))
 
 //import routes
 const route = require('./routes')
@@ -26,9 +29,13 @@ app.use(express.json()) //thông qua file js vd axios, fetch. XMLHttpRequest
 //HTTP logger: quan sát được log của request từ client đến sever
 app.use(morgan('combined'))
 
+
 //Template engine
 app.engine('hbs', engine({
-    extname: '.hbs' //cách cập nhật lại đuôi file handlebars
+    extname: '.hbs', //cách cập nhật lại đuôi file handlebars
+    helpers: { //cách cài function hỗ trợ trong handlebar-express
+        sum: (a, b) => a + b,
+    }
 })); //app này sử dụng Template engine là handlebars
 app.set('view engine', 'hbs') //set là đặt cho ứng dụng express sử dụng view engine là handlebars
 app.set('views', path.join(__dirname, 'resources', 'views'));

@@ -30,7 +30,8 @@ class SiteController { //dạng constructor function class viết hoa chữ cái
 
     //[get] /search
     search(req, res) {
-        res.send('search')
+        // res.send('search')
+        res.render('search');
     }
 }
 module.exports = new SiteController;
