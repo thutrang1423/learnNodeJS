@@ -52,11 +52,27 @@ class CourseController { //dạng constructor function class viết hoa chữ c�
     }
 
     //[delete] /courses/:id
+    // delete(req, res, next) {
+    //     Course.deleteOne({ _id: req.params.id })
+    //         .then(() => res.redirect('/me/stored/courses'))
+    //         .catch(next);
+    // }
+
+    //soft delete
+    //[delete] /courses/:id
     delete(req, res, next) {
-        Course.deleteOne({ _id: req.params.id })
+        Course.delete({ _id: req.params.id })
             .then(() => res.redirect('/me/stored/courses'))
-            .catch(next);
+            .catch(next)
     }
+
+    //[patch] /courses/:id/restore
+    restore(req, res, next) {
+        Course.restore({ _id: req.params.id })
+            .then(() => res.redirect('/me/trash/courses'))
+            .catch(next)
+    }
+
 }
 module.exports = new CourseController;
 

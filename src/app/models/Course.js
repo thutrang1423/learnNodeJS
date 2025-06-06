@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
-// const slug = require('mongoose-slug-generator');
-const slugify = require('slugify');
-// mongoose.plugin(slug);
 const Schema = mongoose.Schema;
+
 
 const Course = new Schema({
     name: { type: String, require: true },
@@ -17,6 +15,9 @@ const Course = new Schema({
 }, {
     timestamps: true,
 });
+
+
+const slugify = require('slugify');
 
 // Middleware tạo slug duy nhất
 Course.pre('save', async function (next) { //pre-save middleware: Nó chạy trước khi Course được lưu vào MongoDB. next() là hàm callback để tiếp tục quá trình lưu.
@@ -34,6 +35,15 @@ Course.pre('save', async function (next) { //pre-save middleware: Nó chạy tr�
     }
     next();//Tiếp tục quá trình lưu document.
 });
+
+const mongooseDelete = require('mongoose-delete')
+// const { softDeleteModel } = require('mongoose-delete')
+Course.plugin(mongooseDelete, {
+    deletedAt: true,
+    overrideMethods: 'all'
+})
+
+
 
 module.exports = mongoose.model('Course', Course);
 

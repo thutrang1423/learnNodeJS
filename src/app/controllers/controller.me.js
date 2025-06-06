@@ -7,8 +7,18 @@ class MeController {
     storedCourses(req, res, next) {
         // res.render('me/stored-courses');
         Course.find({})
-            .then(courses => {
+            .then((courses) => {
                 res.render('me/stored-courses', { courses: mulipleMongooseToObject(courses) })
+            })
+            .catch(next);
+    }
+
+    //[get] /me/trash/courses
+    trashCourses(req, res, next) {
+        Course.findDeleted({})
+            .then((courses) => {
+                console.log('Courses in trash:', courses)
+                res.render('me/trash-courses', { courses: mulipleMongooseToObject(courses) })
             })
             .catch(next);
     }
