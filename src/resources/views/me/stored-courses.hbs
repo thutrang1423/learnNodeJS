@@ -1,22 +1,64 @@
-<div class="mt4">
+<form class="mt4" name="container-form" method="POST" action="/courses/handle-form-actions">
     <div>
         <h3>Khoá học của tôi</h3>
-        <a href="/me/trash/courses">Thùng rác</a>
+        {{#if deletedCount}}
+        <a href="/me/trash/courses">Thùng rác ({{deletedCount}})</a>
+        {{/if}}
+
+        <div class="mt-4 d-flex .align-items-center">
+            <div class="form-check ">
+                <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+                <label class="form-check-label" for="checkbox-all">
+                    Chọn tất cả
+                </label>
+            </div>
+
+            <select class="form-select checkbox-select-all-options" aria-label="Default select example" name="action"
+                required="required">
+                <option value="">--Hành động--</option>
+                <option value="delete">Xoá</option>
+            </select>
+
+            <button class="btn btn-primary btn-sm check-all-submit-btn" disabled="disabled">
+                Thực hiện
+            </button>
+        </div>
     </div>
+    {{_sort.type}}
     <table class="table mt-4">
         <thead>
             <tr>
-                <th scope="col">#</th>
-                <th scope="col">Tên khoá học</th>
-                <th scope="col">Trình độ</th>
-                <th scope="col" colspan="2">Thời gian tạo</th>
-
+                {{!-- <th scope="col" colspan="2">#</th> --}}
+                <th scope="col" colspan="2">ID
+                    {{{sortable '_id' _sort}}}
+                </th>
+                <th scope="col">
+                    Tên khoá học
+                    {{!-- <a href="?_sort&column=name&type=desc">
+                        <i data-feather="chevron-down"></i>
+                    </a> --}}
+                    {{{sortable 'name' _sort}}}
+                </th>
+                <th scope="col">
+                    {{{sortable 'level' _sort}}}
+                    Trình độ
+                </th>
+                <th scope="col" colspan="2">
+                    {{{sortable 'createdAt' _sort}}}
+                    Thời gian tạo
+                </th>
             </tr>
         </thead>
         <tbody>
             {{#each courses}}
             <tr>
-                <th scope="row">{{sum @index 1}}</th>
+                <td>
+                    <div class="form-check ">
+                        <input class="form-check-input" type="checkbox" name="courseIds[]" value="{{this._id}}">
+                    </div>
+                </td>
+                {{!-- <th scope="row">{{sum @index 1}}</th> --}}
+                <th scope="row">{{this._id}}</th>
                 <td>{{this.name}}</td>
                 <td>{{this.level}}</td>
                 <td>{{this.createdAt}}</td>
@@ -37,7 +79,7 @@
             {{/each}}
         </tbody>
     </table>
-</div>
+</form>
 
 {{!-- comform to delete course--}}
 <div class="modal face" tabindex="-1" id="delete-course-modal">
@@ -61,14 +103,20 @@
 {{!-- Delete hidden form --}}
 <form method="POST" name="delete-course-form"></form>
 
-
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script>feather.replace();</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () { //Đảm bảo rằng tất cả phần tử HTML (modal, form, nút...) đều đã được load trước khi JS chạy.
         var courseId;
         var deleteForm = document.forms['delete-course-form']
+        //var containerForm = document.forms['container-form']
+        var containerForm = document.querySelector('form[name="container-form"]')
         var btnDeleteCourse = document.getElementById('btn-delete-course')
         const deleteCourseModal = document.getElementById('delete-course-modal')
         const deleteButton = deleteCourseModal.querySelector('.btn-danger')
+        var checkAllSubmitBtn = document.querySelector('.check-all-submit-btn')
+
+        //console.log(containerForm)
 
         deleteCourseModal.addEventListener('show.bs.modal', function (event) { //event là Bootstrap modal event object
             const button = event.relatedTarget // event.relatedTarget là phần tử HTML đã kích hoạt modal. <-- chính là nút ở bên ngoài "Xoá"
@@ -89,6 +137,69 @@
                 deleteForm.action = '/courses/' + courseId + '?_method=DELETE'
                 deleteForm.submit()
             }
+
         });
+
+
+        var checkboxAll = document.getElementById('checkbox-all');
+        var courseItemCheckboxes = document.querySelectorAll('input[name="courseIds[]"]');
+
+        // Khi checkboxAll thay đổi
+        checkboxAll.onchange = function () { //onchange xảy ra khi người dùng tick hoặc bỏ tick checkbox "Chọn tất cả".
+            var isCheckedAll = checkboxAll.checked; //checkboxAll.checked: trả về true nếu người dùng đã tick, false nếu bỏ tick.
+            courseItemCheckboxes.forEach(function (checkbox) {
+                checkbox.checked = isCheckedAll; //Nếu isCheckedAll = true, tất cả checkbox con được đánh dấu. Nếu isCheckedAll = false, tất cả checkbox con được bỏ chọn.
+            });
+            renderCheckAllSubmitBtn();
+        };
+
+        // Khi 1 trong các checkbox con thay đổi → tự cập nhật lại trạng thái checkboxAll
+        courseItemCheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () { //Gắn sự kiện change cho từng checkbox con.
+                // Nếu tất cả đều được chọn, thì checkboxAll phải tích
+                var allChecked = Array.from(courseItemCheckboxes).every(function (cb) {
+                    //Array.from(courseItemCheckboxes): biến NodeList thành Array để dùng .every().
+                    //.every(cb => cb.checked): kiểm tra xem tất cả checkbox con có đang được tick không.
+                    renderCheckAllSubmitBtn();
+                    return cb.checked;  //Nếu ít nhất một cái không được tick → checkboxAll bị bỏ tick.
+                });
+                checkboxAll.checked = allChecked;////Nếu đúng → đánh dấu checkboxAll là checked.
+            });
+        });
+
+        //check all submit button clicked
+        /*checkAllSubmitBtn.onclick = function (e) {
+            e.preventDefault();
+            var isSubmitable = checkAllSubmitBtn.classList.contains('disabled');
+
+            if (!isSubmitable) {
+                // Được phép submit
+                containerForm.submit();
+                // Ví dụ: document.forms['your-form-name'].submit();
+            }
+            //else {
+            // Không làm gì nếu đang bị disabled
+            //    console.log('Nút đang bị vô hiệu hóa');
+            //}
+        }*/
+
+        /*checkAllSubmitBtn.addEventListener('submit', function (e) {
+            var isSubmitable = checkAllSubmitBtn.classList.contains('disabled');
+            if (!isSubmitable) {
+                e.preventDefault();
+            }
+        });*/
+
+        //Re-render check all submit button
+        function renderCheckAllSubmitBtn() {
+            var checkedCount = document.querySelectorAll('input[name="courseIds[]"]:checked').length;
+            if (checkedCount > 0) {
+                checkAllSubmitBtn.removeAttribute('disabled');
+            } else {
+                checkAllSubmitBtn.setAttribute('disabled', true);
+            }
+        }
+
+        //console.log(containerForm)
     });
 </script>

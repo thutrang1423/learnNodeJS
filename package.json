@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
+    "watch": "node-sass --watch src/resources/scss --output src/public/css",
     "beautiful": "prettier --single-quote --trailing-comma all --tab-width 4 'src/**/*.{js,json,scss}'",
     "beautiful1": "lint-staged",
     "start": "nodemon --inspect src/index.js",
-    "watch": "node-sass --watch src/resources/scss --output src/public/css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -39,6 +39,7 @@
     "method-override": "^3.0.0",
     "mongoose": "^8.15.1",
     "mongoose-delete": "^1.0.2",
+    "mongoose-sequence": "^6.0.1",
     "mongoose-slug-generator": "^1.0.4",
     "morgan": "^1.10.0",
     "slugify": "^1.6.6"

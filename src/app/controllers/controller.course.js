@@ -51,12 +51,12 @@ class CourseController { //dạng constructor function class viết hoa chữ c�
             .catch(next);
     }
 
-    //[delete] /courses/:id
-    // delete(req, res, next) {
-    //     Course.deleteOne({ _id: req.params.id })
-    //         .then(() => res.redirect('/me/stored/courses'))
-    //         .catch(next);
-    // }
+    //[delete] /courses/:id/force
+    forceDelete(req, res, next) {
+        Course.deleteOne({ _id: req.params.id })
+            .then(() => res.redirect('/me/trash/courses'))
+            .catch(next);
+    }
 
     //soft delete
     //[delete] /courses/:id
@@ -71,6 +71,21 @@ class CourseController { //dạng constructor function class viết hoa chữ c�
         Course.restore({ _id: req.params.id })
             .then(() => res.redirect('/me/trash/courses'))
             .catch(next)
+    }
+
+    //[POST] /courses/handle-form-actions
+    handleFormActions(req, res, next) {
+        // res.json(req.body)
+        switch (req.body.action) {
+            case 'delete':
+                Course.delete({ _id: { $in: req.body.courseIds } })//$in: là để req trả về mảng courseIds
+                    .then(() => res.redirect('/me/stored/courses'))
+                    .catch(next)
+                break;
+
+            default:
+                res.json({ message: 'Action is invalid!' })
+        }
     }
 
 }

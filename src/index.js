@@ -6,6 +6,8 @@ const { engine } = require('express-handlebars');
 const app = express() //express() là chạy 1 function express có sẵn trong node_modules, hàm này sẽ trả về 1 đối tượng đại diện cho ứng dụng của mình, và mình sẽ dùng nó xuyên suột ứng dụng
 const port = 3000 //run website ở cổng port nào 
 
+const SortMiddleware = require('./app/middlewares/SortMiddleware')
+
 app.use(methodOverride('_method'))
 
 //import routes
@@ -29,12 +31,36 @@ app.use(express.json()) //thông qua file js vd axios, fetch. XMLHttpRequest
 //HTTP logger: quan sát được log của request từ client đến sever
 app.use(morgan('combined'))
 
+//custom middlewares
+app.use(SortMiddleware);
+
 
 //Template engine
 app.engine('hbs', engine({
     extname: '.hbs', //cách cập nhật lại đuôi file handlebars
     helpers: { //cách cài function hỗ trợ trong handlebar-express
         sum: (a, b) => a + b,
+        sortable: (field, sort) => {
+            const sortType = field === sort.column ? sort.type : 'default'
+
+            const icons = {
+                default: 'minus',
+                asc: 'chevron-up',
+                desc: 'chevron-down',
+            }
+            const types = {
+                default: 'desc',
+                asc: 'desc',
+                desc: 'asc',
+            }
+            const icon = icons[sortType]
+            const type = types[sortType]
+
+
+            return `<a href="?_sort&column=${field}&type=${type}">
+                        <i data-feather="${icon}"></i>
+                    </a>`;
+        }
     }
 })); //app này sử dụng Template engine là handlebars
 app.set('view engine', 'hbs') //set là đặt cho ứng dụng express sử dụng view engine là handlebars

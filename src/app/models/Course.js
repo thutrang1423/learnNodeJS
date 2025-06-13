@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const Course = new Schema({
+    _id: { type: Number },
     name: { type: String, require: true },
     description: { type: String, maxLength: 600 },
     image: { type: String, maxLength: 255 },
     videoID: { type: String, require: true },
-    image: { type: String, maxLength: 255 },
     level: { type: String },
     slug: { type: String, slug: 'name', unique: true }, //Tạo baseSlug từ name
     // createAt: { type: Date, default: Date.now },
     // updateAt: { type: Date, default: Date.now },
 }, {
+    _id: false,//giúp cho mongodb không truy cập vào trường này
     timestamps: true,
 });
 
@@ -36,6 +37,7 @@ Course.pre('save', async function (next) { //pre-save middleware: Nó chạy tr�
     next();//Tiếp tục quá trình lưu document.
 });
 
+
 const mongooseDelete = require('mongoose-delete')
 // const { softDeleteModel } = require('mongoose-delete')
 Course.plugin(mongooseDelete, {
@@ -43,6 +45,7 @@ Course.plugin(mongooseDelete, {
     overrideMethods: 'all'
 })
 
+Course.plugin(AutoIncrement)
 
 
 module.exports = mongoose.model('Course', Course);
